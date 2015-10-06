@@ -19,9 +19,20 @@ clean:
 test_for_each: for_each.tmp
 
 for_each.tmp: for_each
-	$(VALGRIND) ./for_each > for_each.tmp 2>&1
+	$(VALGRIND) ./for_each > for_each.tmp 1>&1
 	$(GCOV) -b for_each.c++ | grep -A "File 'for_each.c++'" >> for_each.tmp
 	cat for_each.tmp
 
 for_each: for_each.h for_each.c++ 
 	$(CXX) $(CXXFLAGS) $(GCOVFLAGS) for_each.c++ -o for_each $(LDFLAGS)
+
+test: TestTypes.tmp
+
+types: types.h types.c++ TestTypes.c++
+	$(CXX) $(CXXFLAGS) $(GCOVFLAGS) types.c++ TestTypes.c++ -o types $(LDFLAGS)
+
+TestTypes.tmp: types
+	$(VALGRIND) ./types > TestTypes.tmp 2>&1
+	$(GCOV) -b types.c++ | grep -A 5 "File 'types.c++'" >> TestTypes.tmp
+	$(GCOV) -b TestTypes.c++ | grep -A 5 "File 'TestTypes.c++'" >> TestTypes.tmp
+	cat TestTypes.tmp
